@@ -39,16 +39,6 @@ class Cli
     end
   end
 
-  def push
-    opts = clientoptparse(:push)
-    Taps.log.level = Logger::DEBUG if opts[:debug]
-    if opts[:resume_filename]
-      clientresumexfer(:push, opts)
-    else
-      clientxfer(:push, opts)
-    end
-  end
-
   def server
     opts = serveroptparse
     Taps.log.level = Logger::DEBUG if opts[:debug]
@@ -76,7 +66,6 @@ Options
 =======
 server    Start a taps database import/export server
 pull      Pull a database from a taps server
-push      Push a database to a taps server
 version   Taps version
 
 Add '-h' to any command to see their usage
@@ -124,8 +113,6 @@ EOHELP
       case cmd
       when :pull
         o.define_head "Pull a database from a taps server"
-      when :push
-        o.define_head "Push a database to a taps server"
       end
 
       o.on("-s", "--skip-schema", "Don't transfer the schema, just data") { |v| opts[:skip_schema] = true }

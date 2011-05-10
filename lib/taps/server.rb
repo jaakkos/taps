@@ -80,48 +80,7 @@ class Server < Sinatra::Base
     content_type 'application/json'
     OkJson.encode({ :state => stream.to_hash })
   end
-
-  post '/sessions/:key/push/table' do
-    session = DbSession.filter(:key => params[:key]).first
-    halt 404 unless session
-
-    json = DataStream.parse_json(params[:json])
-
-    size = 0
-    session.conn do |db|
-      Taps::Utils.server_error_handling do
-        stream = DataStream.factory(db, json[:state])
-        size = stream.fetch_remote_in_server(params)
-      end
-    end
-
-    # TODO: return the stream's state with the size
-    size.to_s
-  end
-
-  post '/sessions/:key/push/reset_sequences' do
-    session = DbSession.filter(:key => params[:key]).first
-    halt 404 unless session
-
-    Taps::Utils.schema_bin(:reset_db_sequences, session.database_url)
-  end
-
-  post '/sessions/:key/push/schema' do
-    session = DbSession.filter(:key => params[:key]).first
-    halt 404 unless session
-
-    schema_data = request.body.read
-    Taps::Utils.load_schema(session.database_url, schema_data)
-  end
-
-  post '/sessions/:key/push/indexes' do
-    session = DbSession.filter(:key => params[:key]).first
-    halt 404 unless session
-
-    index_data = request.body.read
-    Taps::Utils.load_indexes(session.database_url, index_data)
-  end
-
+  
   post '/sessions/:key/pull/schema' do
     session = DbSession.filter(:key => params[:key]).first
     halt 404 unless session
